@@ -5,6 +5,7 @@ const fs = require('fs')
 const { token } = require('./config.json')
 const commands = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 const { createAudioResource, joinVoiceChannel} = require('@discordjs/voice');
+const mp3Duration = require('mp3-duration');
 
 client.commands = new Discord.Collection();
 
@@ -50,19 +51,21 @@ client.on('ready', async () => {
 
 async function loopMusic() {
 
-    setTimeout(() => {
-        loopMusic();
-    }, 242000);
+    mp3Duration('./music/music.mp3', (err, duration) => {
+        if (err) return console.log(err.message);
+        setTimeout(() => {
+            loopMusic();
+        }, duration * 1000 + 1000);
+    });
 
 
-    const resource = createAudioResource("./music.mp3", {
+    const resource = createAudioResource("./music/music.mp3", {
         inlineVolume: true,
         metadata: {
             title: "Christmas",
         }
     });
 
-    resource.volume.setVolume(0.5);
     await player.play(resource);
 
     Object.keys(servers).forEach(function(key) {
